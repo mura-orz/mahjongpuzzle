@@ -4,6 +4,10 @@ Mahjong Puzzle in ES
 
 Single file simple game
 
+## Environment
+
+ - Mahjong files font of Unicode is required. (Recommend to use Chrome on Windows)
+
 ## Usage
 
 - Open the file using modern web browser.
