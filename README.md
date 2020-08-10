@@ -6,7 +6,7 @@ Single file simple game
 
 ## Environment
 
- - Mahjong files font of Unicode is required. (Recommend to use Chrome on Windows)
+ - Mahjong tiles font of Unicode is required. (Recommend to use Chrome on Windows)
 
 ## Usage
 
