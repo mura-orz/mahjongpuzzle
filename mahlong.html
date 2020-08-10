@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="description" content="Mahjong Puzzle" />
+	<meta name="author" content="Mura" />
+
+	<!--
+		MIT License
+
+		Copyright 2020, Mura
+		
+		Permission is hereby granted, free of charge, to any person obtaining a
+		copy of this software and associated documentation files (the "Software"),
+		to deal in the Software without restriction, including without limitation
+		the rights to use, copy, modify, merge, publish, distribute, sublicense,
+		and/or sell copies of the Software, and to permit persons to whom the
+		Software is furnished to do so, subject to the following conditions:
+
+		The above copyright notice and this permission notice shall be included
+		in all copies or substantial portions of the Software.
+
+		THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+		EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+		IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+		DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+		ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+		IN THE SOFTWARE.
+	-->
+
+	<title>Mahjong Puzzle</title>
+	
+	<!-- inline styles -->
+	<style>
+
+		/* Green mat */
+
+		table {
+			background-color: green;
+		}
+		td {
+			border: solid 1px green;
+		}
+
+		/* Cursor */
+
+		.selected {
+			border: solid 1px red;
+		}
+
+		/* Others */
+
+		#title {
+			color: lightgray;
+			font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+			font-style: italic;
+			text-decoration: underline;
+		}
+		#credit {
+			color: lightgray;
+		}
+		#message {
+			color: red;
+		}
+	</style>
+</head>
+<body>
+
+	<!-- HTML -->
+
+	<header>
+		<h1 id="title">Mahjong Puzzle</h1>
+	</header>
+
+	<p id="message"></p>
+	<table id="mat"></table>
+	<button id="reset">Reset</button>
+
+	<footer>
+		<p id="credit">&copy; 2020, Mura.</p>
+	</footer>
+
+	<!-- inline EcmaScript -->
+	<noscript>
+		<p>This game requires JavaScript. Please turn it on.</p>
+	</noscript>
+	<script>
+		'use strict'
+
+		const shuffle = ([...array]) => {
+			for (let i = array.length - 1; i >= 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[array[i], array[j]] = [array[j], array[i]];
+			}
+			return array;
+		}
+
+		const	indexes	= (size) => { return [...Array(size).keys()] }
+
+		const	TileText = {
+			EW: '&#x1F000;',	SW: '&#x1F001;',	WW: '&#x1F002;',	NW: '&#x1F003;',	// Winds : East, South, West, North
+			RD: '&#x1F004;',	GD: '&#x1F005;',	WD: '&#x1F006;',						// Dragons : Red Dragon, Green Dragon, White Dragon
+			M1: '&#x1F007;',	M2: '&#x1F008;',	M3: '&#x1F009;',	M4: '&#x1F00A;',	M5: '&#x1F00B;',	M6: '&#x1F00C;',	M7: '&#x1F00D;',	M8: '&#x1F00E;',	M9: '&#x1F00F;',
+			S1: '&#x1F010;',	S2: '&#x1F011;',	S3: '&#x1F012;',	S4: '&#x1F013;',	S5: '&#x1F014;',	S6: '&#x1F015;',	S7: '&#x1F016;',	S8: '&#x1F017;',	S9: '&#x1F018;',
+			P1: '&#x1F019;',	P2: '&#x1F01A;',	P3: '&#x1F01B;',	P4: '&#x1F01C;',	P5: '&#x1F01D;',	P6: '&#x1F01E;',	P7: '&#x1F01F;',	P8: '&#x1F020;',	P9: '&#x1F021;',
+			PF: '&#x1F022;',	OF: '&#x1F023;',	BF: '&#x1F024;',	CF: '&#x1F025;',	// Flowers : Plum, Orchid, Bamboo, Chrysanthemum
+			SS: '&#x1F026;',	sS: '&#x1F027;',	AS: '&#x1F028;',	WS: '&#x1F029;',	// Seasons : Spring, Summer, Autumn, Winter
+			J: '&#x1F02A;',		B: '&#x1F02B;',												// Joker, Back
+		}
+
+		class Tile {
+			id;
+			text;
+
+			get type() { return Math.floor(this.id / 4) }
+
+			constructor(id, text) {
+				this.id = id
+				this.text = text
+			}
+		}
+		const	Tiles = [
+			new Tile(  0, TileText.P1), new Tile(  1, TileText.P1), new Tile(  2, TileText.P1), new Tile(  3, TileText.P1), new Tile(  4, TileText.P2), new Tile(  5, TileText.P2), new Tile(  6, TileText.P2), new Tile(  7, TileText.P2),
+			new Tile(  8, TileText.P3), new Tile(  9, TileText.P3), new Tile( 10, TileText.P3), new Tile( 11, TileText.P3), new Tile( 12, TileText.P4), new Tile( 13, TileText.P4), new Tile( 14, TileText.P4), new Tile( 15, TileText.P4),
+			new Tile( 16, TileText.P5), new Tile( 17, TileText.P5), new Tile( 18, TileText.P5), new Tile( 19, TileText.P5), new Tile( 20, TileText.P6), new Tile( 21, TileText.P6), new Tile( 22, TileText.P6), new Tile( 23, TileText.P6),
+			new Tile( 24, TileText.P7), new Tile( 25, TileText.P7), new Tile( 26, TileText.P7), new Tile( 27, TileText.P7), new Tile( 28, TileText.P8), new Tile( 29, TileText.P8), new Tile( 30, TileText.P8), new Tile( 31, TileText.P8),
+			new Tile( 32, TileText.P9), new Tile( 33, TileText.P9), new Tile( 34, TileText.P9), new Tile( 35, TileText.P9),
+			new Tile( 36, TileText.S1), new Tile( 37, TileText.S1), new Tile( 38, TileText.S1), new Tile( 39, TileText.S1), new Tile( 40, TileText.S2), new Tile( 41, TileText.S2), new Tile( 42, TileText.S2), new Tile( 43, TileText.S2),
+			new Tile( 44, TileText.S3), new Tile( 45, TileText.S3), new Tile( 46, TileText.S3), new Tile( 47, TileText.S3), new Tile( 48, TileText.S4), new Tile( 49, TileText.S4), new Tile( 50, TileText.S4), new Tile( 51, TileText.S4),
+			new Tile( 52, TileText.S5), new Tile( 53, TileText.S5), new Tile( 54, TileText.S5), new Tile( 55, TileText.S5), new Tile( 56, TileText.S6), new Tile( 57, TileText.S6), new Tile( 58, TileText.S6), new Tile( 59, TileText.S6),
+			new Tile( 60, TileText.S7), new Tile( 61, TileText.S7), new Tile( 62, TileText.S7), new Tile( 63, TileText.S7), new Tile( 64, TileText.S8), new Tile( 65, TileText.S8), new Tile( 66, TileText.S8), new Tile( 67, TileText.S8),
+			new Tile( 68, TileText.S9), new Tile( 69, TileText.S9), new Tile( 70, TileText.S9), new Tile( 71, TileText.S9),
+			new Tile( 72, TileText.M1), new Tile( 73, TileText.M1), new Tile( 74, TileText.M1), new Tile( 75, TileText.M1), new Tile( 76, TileText.M2), new Tile( 77, TileText.M2), new Tile( 78, TileText.M2), new Tile( 79, TileText.M2),
+			new Tile( 80, TileText.M3), new Tile( 81, TileText.M3), new Tile( 82, TileText.M3), new Tile( 83, TileText.M3), new Tile( 84, TileText.M4), new Tile( 85, TileText.M4), new Tile( 86, TileText.M4), new Tile( 87, TileText.M4),
+			new Tile( 88, TileText.M5), new Tile( 89, TileText.M5), new Tile( 90, TileText.M5), new Tile( 91, TileText.M5), new Tile( 92, TileText.M6), new Tile( 93, TileText.M6), new Tile( 94, TileText.M6), new Tile( 95, TileText.M6),
+			new Tile( 96, TileText.M7), new Tile( 97, TileText.M7), new Tile( 98, TileText.M7), new Tile( 99, TileText.M7), new Tile(100, TileText.M8), new Tile(101, TileText.M8), new Tile(102, TileText.M8), new Tile(103, TileText.M8),
+			new Tile(104, TileText.M9), new Tile(105, TileText.M9), new Tile(106, TileText.M9), new Tile(107, TileText.M9),
+			new Tile(108, TileText.EW), new Tile(109, TileText.EW), new Tile(110, TileText.EW), new Tile(111, TileText.EW), new Tile(112, TileText.SW), new Tile(113, TileText.SW), new Tile(114, TileText.SW), new Tile(115, TileText.SW),
+			new Tile(116, TileText.WW), new Tile(117, TileText.WW), new Tile(118, TileText.WW), new Tile(119, TileText.WW), new Tile(120, TileText.NW), new Tile(121, TileText.NW), new Tile(122, TileText.NW), new Tile(123, TileText.NW),
+			new Tile(124, TileText.WD), new Tile(125, TileText.WD), new Tile(126, TileText.WD), new Tile(127, TileText.WD), new Tile(128, TileText.GD), new Tile(129, TileText.GD), new Tile(130, TileText.GD), new Tile(131, TileText.GD),
+			new Tile(132, TileText.RD), new Tile(133, TileText.RD), new Tile(134, TileText.RD), new Tile(135, TileText.RD),
+			new Tile(136, TileText.PF), new Tile(137, TileText.OF), new Tile(138, TileText.BF), new Tile(139, TileText.CF), new Tile(140, TileText.SS), new Tile(141, TileText.sS), new Tile(142, TileText.AS), new Tile(143, TileText.WS),
+		]
+
+		const	Height	= 8
+		const	Width	= 18
+		const	Ys	= indexes(Height)
+		const	Xs	= indexes(Width)
+
+		const createMat	= () => {
+			const tableMat = document.getElementById('mat')
+			Ys.forEach(y => {
+				const tr = document.createElement('tr')
+				Xs.forEach(x => {
+					const id = y + '-' + x
+					const td = document.createElement('td')
+					td.id = id
+					tr.appendChild(td)
+				})
+				tableMat.appendChild(tr)
+			})
+			
+		}
+		createMat()	// runs it here
+
+		const	resetTiles	= () => {
+			const shuffled = shuffle(Tiles)
+			let n = 0
+			let	tiles = new Array(Height)
+			Ys.forEach(y => {
+				tiles[y] = new Array(Width)
+				Xs.forEach(x => {
+					tiles[y][x] = shuffled[n++]
+				})
+			})
+			return tiles
+		}
+
+		let	tiles = resetTiles()
+		let selected = null
+
+		const putMessage = (message) => {
+			document.getElementById('message').innerHTML = message
+		}
+
+		const	getCell	= (x, y) => {
+			const pos = y + '-' + x
+			return document.getElementById(pos)
+		}
+
+		const	isAvailable	= (x, y) => {
+			return (0 <= y) && (0 <= x) && (y < tiles.length) && (tiles[y] != null) && (x < tiles[y].length) && (tiles[y][x] != null)
+		}
+
+		const	getTile = (x, y) => {
+			return isAvailable(x, y) ? tiles[y][x] : null
+		}
+
+		const	getHittablePositions = (xx, yy) => {
+			let hittable = []
+			Ys.forEach(yyy => {
+				if (yy !== yyy) {
+					hittable.push({x: xx, y: yyy})
+				}
+			})
+			Xs.forEach(xxx => {
+				if (xx !== xxx) {
+					hittable.push({x: xxx, y: yy})
+				}
+			})
+			hittable.push({x: (xx - 1), y: (yy - 1)})
+			hittable.push({x: (xx + 1), y: (yy - 1)})
+			hittable.push({x: (xx - 1), y: (yy + 1)})
+			hittable.push({x: (xx - 1), y: (yy - 1)})
+			return hittable
+		}
+
+		const	isHit	= (x, y) => {
+			const	tile = getTile(x, y)
+			if (tile != null) {
+				const	hittablePositions = getHittablePositions(x, y)
+				for (let n = 0; n < hittablePositions.length; ++n) {
+					const hittableTile = getTile(hittablePositions[n].x, hittablePositions[n].y)
+					if (hittableTile != null && tile.type === hittableTile.type) {
+						return true
+					}
+				}
+			}
+			return false
+		}
+
+		const	hasHittable	= () => {
+			for (let y = 0; y < tiles.length; ++y) {
+				for (let x = 0; x < tiles[y].length; ++x) {
+					if (isHit(x, y)) {
+						console.log('At least [' + x + ':' + y + '] remains.')
+						return true
+					}
+				}
+			}
+			return false
+		}
+
+		const	show	= () => {
+			Ys.forEach(y => {
+				Xs.forEach(x => {
+					const cell = getCell(x, y)
+					const tile = getTile(x, y)
+					cell.innerHTML = (tile == null) ? '' : tile.text
+				})
+			})
+		}
+
+		window.onload 	= () => {
+			
+			// setup the reset button
+			{
+				const button = document.getElementById('reset')
+				button.onclick = () => {
+					tiles	= resetTiles()
+					selected = null
+					putMessage('')
+					show()
+				}
+			}
+
+			// setup tiles
+			Ys.forEach(y => {
+				Xs.forEach(x => {
+					const cell = getCell(x, y)
+					cell.onclick = () => {
+						if (selected == null) {
+							if (y < tiles.length && x < tiles[y].length) {
+								// selected
+								cell.classList.add('selected')
+								selected = {y: y, x: x}
+							}
+						} else {
+							if (cell.classList.contains('selected')) {
+								// canceled
+								cell.classList.remove('selected')
+								selected = null
+							} else {
+								const selectedTile = getTile(selected.x, selected.y)
+								const currentTile = getTile(x, y) 
+								if ((selectedTile.type === currentTile.type) && ((x === selected.x) || (y === selected.y) || ((Math.abs(y - selected.y) === 1) && (Math.abs((x - selected.x)) === 1)))) {
+									console.log("c[" + y + '-' + x + '] ' + currentTile.id + ' s[' + selected.y + '-' + selected.x + '] ' + selectedTile.id)
+									// removes the tiles
+
+									const selctedCell = getCell(selected.x, selected.y)
+									selctedCell.classList.remove('selected')
+
+									if( x < selected.x) {
+										tiles[selected.y].splice(selected.x, 1)
+										tiles[y].splice(x, 1)
+									} else {
+										tiles[y].splice(x, 1)
+										tiles[selected.y].splice(selected.x, 1)
+									}
+									selected = null
+
+									indexes(tiles.length).reverse().forEach(y => {
+										if (tiles[y].length === 0) {
+											tiles.splice(y, 1)
+										}
+									})
+									show()
+									if (tiles.length === 0) {
+										putMessage('Completed!')
+									} else if ( ! hasHittable()) {
+										putMessage('Game over!')
+									}
+								}
+							}
+						}
+					}
+				})
+			})
+			show()
+		}
+	</script>
+</body>
+</html>
