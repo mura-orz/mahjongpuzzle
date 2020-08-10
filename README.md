@@ -7,7 +7,7 @@ Single file simple game
 ## Usage
 
 - Open the file using modern web browser.
-- Firstly, select a tile. The tile are selected by red cursor.
+- Firstly, select a tile. The tile is selected by red cursor.
 - Next, select another erasable tile, which rules are explained below.
 - If both the tiles can be erased, they are erased and following tiles are shifted to left-side. If the tiles cannot be erased, nothing happens.
 - To cancel the selected tile, you can click the tile again. In other words, tile selection is toggled behavior.
