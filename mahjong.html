@@ -98,6 +98,7 @@
 
 		const	indexes	= (size) => { return [...Array(size).keys()] }
 
+/* */
 		const	TileText = {
 			EW: '&#x1F000;',	SW: '&#x1F001;',	WW: '&#x1F002;',	NW: '&#x1F003;',	// Winds : East, South, West, North
 			RD: '&#x1F004;',	GD: '&#x1F005;',	WD: '&#x1F006;',						// Dragons : Red Dragon, Green Dragon, White Dragon
@@ -108,6 +109,19 @@
 			SS: '&#x1F026;',	sS: '&#x1F027;',	AS: '&#x1F028;',	WS: '&#x1F029;',	// Seasons : Spring, Summer, Autumn, Winter
 			J: '&#x1F02A;',		B: '&#x1F02B;',												// Joker, Back
 		}
+/* */
+/*
+		const	TileText = {
+			EW: '東',	SW: '南',	WW: '西',	NW: '北',	// Winds : East, South, West, North
+			RD: '中',	GD: '發',	WD: '白',				// Dragons : Red Dragon, Green Dragon, White Dragon
+			M1: '一',	M2: '二',	M3: '三',	M4: 'Ⅳ',	M5: '五',	M6: '六',	M7: '七',	M8: '八',	M9: '九',
+			S1: 'Ⅰ',	S2: 'Ⅱ',	S3: 'Ⅲ',	S4: 'Ⅳ',	S5: 'Ⅴ',	S6: 'Ⅵ',	S7: 'Ⅶ',	S8: 'Ⅷ',	S9: 'Ⅸ',
+			P1: '①',	P2: '②',	P3: '③',	P4: '④',	P5: '⑤',	P6: '⑥',	P7: '⑦',	P8: '⑧',	P9: '⑨',
+			PF: '梅',	OF: '蘭',	BF: '竹',	CF: '菊',	// Flowers : Plum, Orchid, Bamboo, Chrysanthemum
+			SS: '春',	sS: '夏',	AS: '秋',	WS: '冬',	// Seasons : Spring, Summer, Autumn, Winter
+			J: '搭',	B: '裏',							// Joker, Back
+		}
+*/
 
 		class Tile {
 			id;
