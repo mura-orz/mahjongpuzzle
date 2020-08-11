@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="description" content="Card Puzzle" />
+	<meta name="author" content="Mura" />
+
+	<!--
+		MIT License
+
+		Copyright 2020, Mura
+		
+		Permission is hereby granted, free of charge, to any person obtaining a
+		copy of this software and associated documentation files (the "Software"),
+		to deal in the Software without restriction, including without limitation
+		the rights to use, copy, modify, merge, publish, distribute, sublicense,
+		and/or sell copies of the Software, and to permit persons to whom the
+		Software is furnished to do so, subject to the following conditions:
+
+		The above copyright notice and this permission notice shall be included
+		in all copies or substantial portions of the Software.
+
+		THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+		EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+		IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+		DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+		ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+		IN THE SOFTWARE.
+	-->
+
+	<title>Card Puzzle</title>
+	
+	<!-- inline styles -->
+	<style>
+
+		/* Green mat */
+
+		table {
+			background-color: green;
+		}
+		td {
+			border: solid 1px green;
+		}
+
+		/* Cursor */
+
+		.selected {
+			border: solid 1px red;
+		}
+
+		/* Others */
+
+		#title {
+			color: lightgray;
+			font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+			font-style: italic;
+			text-decoration: underline;
+		}
+		#credit {
+			color: lightgray;
+		}
+		#message {
+			color: red;
+		}
+	</style>
+</head>
+<body>
+
+	<!-- HTML -->
+
+	<header>
+		<h1 id="title">Card Puzzle</h1>
+	</header>
+
+	<p id="message"></p>
+	<table id="mat"></table>
+	<button id="reset">Reset</button>
+
+	<footer>
+		<p id="credit">&copy; 2020, Mura.</p>
+	</footer>
+
+	<!-- inline EcmaScript -->
+	<noscript>
+		<p>This game requires JavaScript. Please turn it on.</p>
+	</noscript>
+	<script>
+		'use strict'
+
+		const shuffle = ([...array]) => {
+			for (let i = array.length - 1; i >= 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[array[i], array[j]] = [array[j], array[i]];
+			}
+			return array;
+		}
+
+		const	indexes	= (size) => { return [...Array(size).keys()] }
+
+// If the following card fonts cannot be shown on your environment, you can use the alternative characters instead.
+/* */
+		const	CardText = {
+			S1: '&#x1F0A1;',	S2: '&#x1F0A2;',	S3: '&#x1F0A3;',	S4: '&#x1F0A4;',	S5: '&#x1F0A5;',	S6: '&#x1F0A6;',	S7: '&#x1F0A7;',	S8: '&#x1F0A8;',	S9: '&#x1F0A9;',	SA: '&#x1F0AA;',	SB: '&#x1F0AB;',	SC: '&#x1F0AC;',	SD: '&#x1F0AD;',
+			H1: '&#x1F0B1;',	H2: '&#x1F0B2;',	H3: '&#x1F0B3;',	H4: '&#x1F0B4;',	H5: '&#x1F0B5;',	H6: '&#x1F0B6;',	H7: '&#x1F0B7;',	H8: '&#x1F0B8;',	H9: '&#x1F0B9;',	HA: '&#x1F0BA;',	HB: '&#x1F0BB;',	HC: '&#x1F0BC;',	HD: '&#x1F0BD;',
+			D1: '&#x1F0C1;',	D2: '&#x1F0C2;',	D3: '&#x1F0C3;',	D4: '&#x1F0C4;',	D5: '&#x1F0C5;',	D6: '&#x1F0C6;',	D7: '&#x1F0C7;',	D8: '&#x1F0C8;',	D9: '&#x1F0C9;',	DA: '&#x1F0CA;',	DB: '&#x1F0CB;',	DC: '&#x1F0CC;',	DD: '&#x1F0CD;',
+			C1: '&#x1F0D1;',	C2: '&#x1F0D2;',	C3: '&#x1F0D3;',	C4: '&#x1F0D4;',	C5: '&#x1F0D5;',	C6: '&#x1F0D6;',	C7: '&#x1F0D7;',	C8: '&#x1F0D8;',	C9: '&#x1F0D9;',	CA: '&#x1F0DA;',	CB: '&#x1F0DB;',	CC: '&#x1F0DC;',	CD: '&#x1F0DD;',
+			RJ: '&#x1F0BF;',	WJ: '&#x1F0DF;'
+		}
+/* */
+// alternative characters of card
+/*
+		const	CardText = {
+			S1: '&#x2660;1',	S2: '&#x2660;2',	S3: '&#x2660;3',	S4: '&#x2660;4',	S5: '&#x2660;5',	S6: '&#x2660;6',	S7: '&#x2660;7',	S8: '&#x2660;8',	S9: '&#x2660;9',	SA: '&#x2660;a',	SB: '&#x2660;J',	SC: '&#x2660;Q',	SD: '&#x2660;K',
+			H1: '&#x2661;1',	H2: '&#x2661;2',	H3: '&#x2661;3',	H4: '&#x2661;4',	H5: '&#x2661;5',	H6: '&#x2661;6',	H7: '&#x2661;7',	H8: '&#x2661;8',	H9: '&#x2661;9',	HA: '&#x2661;a',	HB: '&#x2661;J',	HC: '&#x2661;Q',	HD: '&#x2661;K',
+			D1: '&#x2662;1',	D2: '&#x2662;2',	D3: '&#x2662;3',	D4: '&#x2662;4',	D5: '&#x2662;5',	D6: '&#x2662;6',	D7: '&#x2662;7',	D8: '&#x2662;8',	D9: '&#x2662;9',	DA: '&#x2662;a',	DB: '&#x2662;J',	DC: '&#x2662;Q',	DD: '&#x2662;K',
+			C1: '&#x2663;1',	C2: '&#x2663;2',	C3: '&#x2663;3',	C4: '&#x2663;4',	C5: '&#x2663;5',	C6: '&#x2663;6',	C7: '&#x2663;7',	C8: '&#x2663;8',	C9: '&#x2663;9',	CA: '&#x2663;a',	CB: '&#x2663;J',	CC: '&#x2663;Q',	CD: '&#x2663;K',
+			RJ: 'RJ',	WJ: 'WJ'
+		}
+*/
+
+		class Card {
+			id;
+			text;
+
+			get type() { return Math.floor(this.id / 4) }
+
+			constructor(id, text) {
+				this.id = id
+				this.text = text
+			}
+		}
+		const	Cards = [
+			new Card(  0, CardText.S1), new Card(  1, CardText.H1), new Card(  2, CardText.D1), new Card(  3, CardText.C1), new Card(  4, CardText.S2), new Card(  5, CardText.H2), new Card(  6, CardText.D2), new Card(  7, CardText.C2),
+			new Card(  8, CardText.S3), new Card(  9, CardText.H3), new Card( 10, CardText.D3), new Card( 11, CardText.C3), new Card( 12, CardText.S4), new Card( 13, CardText.H4), new Card( 14, CardText.D4), new Card( 15, CardText.C4),
+			new Card( 16, CardText.S5), new Card( 17, CardText.H5), new Card( 18, CardText.D5), new Card( 19, CardText.C5), new Card( 20, CardText.S6), new Card( 21, CardText.H6), new Card( 22, CardText.D6), new Card( 23, CardText.C6),
+			new Card( 24, CardText.S7), new Card( 25, CardText.H7), new Card( 26, CardText.D7), new Card( 27, CardText.C7), new Card( 28, CardText.S8), new Card( 29, CardText.H8), new Card( 30, CardText.D8), new Card( 31, CardText.C8),
+			new Card( 32, CardText.S9), new Card( 33, CardText.H9), new Card( 34, CardText.D9), new Card( 35, CardText.C9), new Card( 36, CardText.SA), new Card( 37, CardText.HA), new Card( 38, CardText.DA), new Card( 39, CardText.CA),
+			new Card( 40, CardText.SB), new Card( 41, CardText.HB), new Card( 42, CardText.DB), new Card( 43, CardText.CB), new Card( 44, CardText.SC), new Card( 45, CardText.HC), new Card( 46, CardText.DC), new Card( 47, CardText.CC),
+			new Card( 48, CardText.SD), new Card( 49, CardText.HD), new Card( 50, CardText.DD), new Card( 51, CardText.CD), new Card( 52, CardText.RJ), new Card( 53, CardText.WJ),
+		]
+
+		const	Height	= 6
+		const	Width	= 9
+		const	Ys	= indexes(Height)
+		const	Xs	= indexes(Width)
+
+		const createMat	= () => {
+			const tableMat = document.getElementById('mat')
+			Ys.forEach(y => {
+				const tr = document.createElement('tr')
+				Xs.forEach(x => {
+					const id = y + '-' + x
+					const td = document.createElement('td')
+					td.id = id
+					tr.appendChild(td)
+				})
+				tableMat.appendChild(tr)
+			})
+			
+		}
+		createMat()	// runs it here
+
+		const	resetCards	= () => {
+			const shuffled = shuffle(Cards)
+			let n = 0
+			let	cards = new Array(Height)
+			Ys.forEach(y => {
+				cards[y] = new Array(Width)
+				Xs.forEach(x => {
+					cards[y][x] = shuffled[n++]
+				})
+			})
+			return cards
+		}
+
+		let	cards = resetCards()
+		let selected = null
+
+		const putMessage = (message) => {
+			document.getElementById('message').innerHTML = message
+		}
+
+		const	getCell	= (x, y) => {
+			const pos = y + '-' + x
+			return document.getElementById(pos)
+		}
+
+		const	isAvailable	= (x, y) => {
+			return (0 <= y) && (0 <= x) && (y < cards.length) && (cards[y] != null) && (x < cards[y].length) && (cards[y][x] != null)
+		}
+
+		const	getCard = (x, y) => {
+			return isAvailable(x, y) ? cards[y][x] : null
+		}
+
+		const	getHittablePositions = (xx, yy) => {
+			let hittable = []
+			Ys.forEach(yyy => {
+				if (yy !== yyy) {
+					hittable.push({x: xx, y: yyy})
+				}
+			})
+			Xs.forEach(xxx => {
+				if (xx !== xxx) {
+					hittable.push({x: xxx, y: yy})
+				}
+			})
+			hittable.push({x: (xx - 1), y: (yy - 1)})
+			hittable.push({x: (xx + 1), y: (yy - 1)})
+			hittable.push({x: (xx - 1), y: (yy + 1)})
+			hittable.push({x: (xx - 1), y: (yy - 1)})
+			return hittable
+		}
+
+		const	isHit	= (x, y) => {
+			const	card = getCard(x, y)
+			if (card != null) {
+				const	hittablePositions = getHittablePositions(x, y)
+				for (let n = 0; n < hittablePositions.length; ++n) {
+					const hittableCard = getCard(hittablePositions[n].x, hittablePositions[n].y)
+					if (hittableCard != null && card.type === hittableCard.type) {
+						return true
+					}
+				}
+			}
+			return false
+		}
+
+		const	hasHittable	= () => {
+			for (let y = 0; y < cards.length; ++y) {
+				for (let x = 0; x < cards[y].length; ++x) {
+					if (isHit(x, y)) {
+						console.log('At least [' + x + ':' + y + '] remains.')
+						return true
+					}
+				}
+			}
+			return false
+		}
+
+		const	show	= () => {
+			Ys.forEach(y => {
+				Xs.forEach(x => {
+					const cell = getCell(x, y)
+					const card = getCard(x, y)
+					cell.innerHTML = (card == null) ? '' : card.text
+				})
+			})
+		}
+
+		window.onload 	= () => {
+			
+			// setup the reset button
+			{
+				const button = document.getElementById('reset')
+				button.onclick = () => {
+					cards	= resetCards()
+					selected = null
+					putMessage('')
+					show()
+				}
+			}
+
+			// setup cards
+			Ys.forEach(y => {
+				Xs.forEach(x => {
+					const cell = getCell(x, y)
+					cell.onclick = () => {
+						if (selected == null) {
+							if (y < cards.length && x < cards[y].length) {
+								// selected
+								cell.classList.add('selected')
+								selected = {y: y, x: x}
+								const currentCard = getCard(x, y) 
+								console.log("c[" + y + '-' + x + '] ' + currentCard.id)
+							}
+						} else {
+							if (cell.classList.contains('selected')) {
+								// canceled
+								cell.classList.remove('selected')
+								selected = null
+							} else {
+								const selectedCard = getCard(selected.x, selected.y)
+								const currentCard = getCard(x, y) 
+								if ((selectedCard.type === currentCard.type) && ((x === selected.x) || (y === selected.y) || ((Math.abs(y - selected.y) === 1) && (Math.abs((x - selected.x)) === 1)))) {
+									console.log("c[" + y + '-' + x + '] ' + currentCard.id + ' s[' + selected.y + '-' + selected.x + '] ' + selectedCard.id)
+									// removes the cards
+
+									const selctedCell = getCell(selected.x, selected.y)
+									selctedCell.classList.remove('selected')
+
+									if( x < selected.x) {
+										cards[selected.y].splice(selected.x, 1)
+										cards[y].splice(x, 1)
+									} else {
+										cards[y].splice(x, 1)
+										cards[selected.y].splice(selected.x, 1)
+									}
+									selected = null
+
+									indexes(cards.length).reverse().forEach(y => {
+										if (cards[y].length === 0) {
+											cards.splice(y, 1)
+										}
+									})
+									show()
+									if (cards.length === 0) {
+										putMessage('Completed!')
+									} else if ( ! hasHittable()) {
+										putMessage('Game over!')
+									}
+								}
+							}
+						}
+					}
+				})
+			})
+			show()
+		}
+	</script>
+</body>
+</html>
